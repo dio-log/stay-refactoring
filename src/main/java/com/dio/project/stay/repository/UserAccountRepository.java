@@ -10,10 +10,11 @@ import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
 import org.springframework.data.querydsl.binding.QuerydslBindings;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @RepositoryRestResource
-public interface UserAccountRepository extends JpaRepository<UserAccount, Long>,
+public interface UserAccountRepository extends JpaRepository<UserAccount, String>,
         QuerydslPredicateExecutor<UserAccount>, QuerydslBinderCustomizer<QUserAccount> {
 
     @Override
@@ -28,4 +29,7 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, Long>,
     }
 
     Optional<UserAccount> findByEmail(String email);
+    Optional<UserAccount> findByUserId(String userId);
+    void deleteByUserId(String userId);
+
 }

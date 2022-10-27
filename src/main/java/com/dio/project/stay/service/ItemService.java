@@ -1,6 +1,7 @@
 package com.dio.project.stay.service;
 
 import com.dio.project.stay.domain.Item;
+import com.dio.project.stay.domain.type.ItemSortType;
 import com.dio.project.stay.dto.ItemDto;
 import com.dio.project.stay.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -28,12 +30,26 @@ public class ItemService {
         return itemRepository.findByItemAddrContaining(search_keyword,pageable).map(ItemDto::from);
     }
 
-    @Transactional(readOnly = true)
-    public Optional<ItemDto> getItem(long itemId){
-        return itemRepository.findById(itemId)
-                .map(ItemDto::from);
+    //임시
+    @Transactional
+    public Page<ItemDto> getItems(
+            String searchWord,
+            String date,
+            String headcount,
+            ItemSortType itemSortType,
+            List<String> options,
+            Pageable pageable) {
+        return  itemRepository.findByItemAddrContaining(searchWord,pageable).map(ItemDto::from);
+
     }
 
+    @Transactional(readOnly = true)
+    public ItemDto getItem(Long id){
+        return itemRepository.findById(id)
+                .map(ItemDto::from).orElseThrow();
+    }
+
+    @Transactional
     public void updateItem(ItemDto dto){
         Item item = itemRepository.getReferenceById(dto.id());
         try{
@@ -55,11 +71,13 @@ public class ItemService {
         }
     }
 
-    public void saveItem(ItemDto dto){
-        itemRepository.save(dto.toEntity());
+    @Transactional
+    public Long saveItem(ItemDto dto){
+        return itemRepository.save(dto.toEntity()).getId();
     }
 
-    public void deleteItem(long itemId){
-        itemRepository.deleteById(itemId);
+    public void deleteItem(Long id){
+        itemRepository.deleteById(id);
     }
+
 }

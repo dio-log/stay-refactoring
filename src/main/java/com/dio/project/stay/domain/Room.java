@@ -1,5 +1,6 @@
 package com.dio.project.stay.domain;
 
+import com.dio.project.stay.domain.type.RoomStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,22 +12,28 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.websocket.server.ServerEndpoint;
 import java.time.LocalDateTime;
 
 
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 @Entity
-public class Room {
+public class Room extends AuditingFields{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @Setter
-    @JoinColumn(name="item_id",nullable = false)
+    @JoinColumn(name="item_id",nullable = true)
     private Item item;
+
+    @ManyToOne(optional = false)
+    @Setter
+    @JoinColumn(name = "user_id",nullable = false)
+    private UserAccount userAccount;
 
     @Setter @Column(nullable = false,length = 55) private String roomName;
     @Setter @Column(nullable = false)  private int roomPrice;
@@ -39,22 +46,13 @@ public class Room {
     @Setter @Column(nullable = false) private int basicPeople;
     @Setter @Column(nullable = false) private int maxPeople;
     @Setter @Column(nullable = false,length = 10000) private String imgPath;
-    @Setter @Column(nullable = false,columnDefinition = "varchar(4) default 't'") private String roomStatus;
+    @Setter @Column(nullable = false) private RoomStatus roomStatus;
     // y, n, t(temp)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @CreatedDate
-    @Column(nullable = false, updatable = false) private LocalDateTime createdAt;    //생성일시
-    @CreatedBy
-    @Column(nullable = false,length = 100,updatable = false) private String createdBy;    //생성자
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @LastModifiedDate
-    @Column(nullable = false) private LocalDateTime modifiedAt;   //수정일시
-    @LastModifiedBy
-    @Column(nullable = false,length = 100) private String modifiedBy;  //수정자
 
     protected Room(){}
 
     public static Room of(Item item,
+                UserAccount userAccount,
                 String roomName,
                 int roomPrice,
                 String bedType,
@@ -66,8 +64,9 @@ public class Room {
                 int basicPeople,
                 int maxPeople,
                 String imgPath,
-                String roomStatus) {
+                RoomStatus roomStatus) {
       return new Room(item,
+              userAccount,
               roomName,
               roomPrice,
               bedType,
@@ -83,6 +82,7 @@ public class Room {
     }
 
     private Room(Item item,
+                UserAccount userAccount,
                 String roomName,
                 int roomPrice,
                 String bedType,
@@ -94,8 +94,9 @@ public class Room {
                 int basicPeople,
                 int maxPeople,
                 String imgPath,
-                String roomStatus) {
+                 RoomStatus roomStatus) {
         this.item = item;
+        this.userAccount = userAccount;
         this.roomName = roomName;
         this.roomPrice = roomPrice;
         this.bedType = bedType;

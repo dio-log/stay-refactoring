@@ -21,13 +21,11 @@ class UserAccountServiceTest {
 
     @InjectMocks private UserAccountService sut;
     @Mock private UserAccountRepository userAccountRepository;
-    private static UserAccountDto userAccountDto = createUserAccountDto();
 
     @DisplayName("userAccountDto save")
     @Test
     void givenUserAccountDto_whenSaveUserAccount_then(){
         // Given
-        //UserAccountDto userAccountDto = createUserAccountDto();
         BDDMockito.given(userAccountRepository.save(any(UserAccount.class))).willReturn(null);
         // When
         sut.saveUserAccount(userAccountDto);
@@ -48,22 +46,5 @@ class UserAccountServiceTest {
         sut.updateUserAccount(userAccountDto);
         // Then
         BDDMockito.then(userAccountRepository).should().save(any(UserAccount.class));
-    }
-
-
-
-    private static UserAccountDto createUserAccountDto(){
-        return UserAccountDto.of(
-                1L,
-                "ae7006",
-                "pwd123",
-                "asdf@gmail.com",
-                "ock",
-                "010-3333-4444",
-                LocalDateTime.now(),
-                "ock",
-                LocalDateTime.now(),
-                "ock"
-        );
     }
 }

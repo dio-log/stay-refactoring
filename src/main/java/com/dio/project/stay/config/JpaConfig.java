@@ -1,9 +1,13 @@
 package com.dio.project.stay.config;
 
+import com.dio.project.stay.dto.security.AuthPrincipal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
@@ -11,7 +15,13 @@ import java.util.Optional;
 @EnableJpaAuditing
 public class JpaConfig {
     @Bean
-    public AuditorAware<String> auditorAware(){
-        return ()-> Optional.of("dio");
+    public AuditorAware<String> auditorAware()
+    {
+        return ()-> Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(AuthPrincipal.class::cast)
+                .map(AuthPrincipal::getUsername);
     }
 }

@@ -1,7 +1,9 @@
 package com.dio.project.stay.service;
 
+import com.dio.project.stay.domain.Item;
 import com.dio.project.stay.domain.Room;
 import com.dio.project.stay.dto.RoomDto;
+import com.dio.project.stay.repository.ItemRepository;
 import com.dio.project.stay.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,18 +19,23 @@ import java.util.List;
 @Service
 public class RoomService {
     private final RoomRepository roomRepository;
+    private final ItemRepository itemRepository;
 
     @Transactional(readOnly = true)
-    public RoomDto getRoom(long itemId, long roomId){
-        return roomRepository.findByItemItemIdAndById(itemId,roomId)
-                .map(RoomDto::from)
-                .orElseThrow();
+    public RoomDto getRoom(Long itemId, Long roomId){
+        return RoomDto.from(roomRepository.findByIdAndItem_Id(itemId,roomId));
+    }
+
+    public List<RoomDto> getRooms(Long itemId){
+        return roomRepository.findByItem_Id(itemId)
+                .stream().map(RoomDto::from)
+                .collect(Collectors.toList());
     }
 
     public void updateRoom(RoomDto dto){
         Room room = roomRepository.getReferenceById(dto.id());
+
         try{
-            room.setItem(dto.itemDto().toEntity());
             room.setRoomName(dto.roomName());
             room.setRoomPrice(dto.roomPrice());
             room.setBedType(dto.bedType());
@@ -45,13 +53,13 @@ public class RoomService {
         }
     }
 
-    public void saveRoom(RoomDto dto){
-        roomRepository.save(dto.toEntity());
-    }
-
-    public void deleteRoom(long roomId){
+    public void deleteRoom(long roomId, Long itemId){
         roomRepository.deleteById(roomId);
     }
 
 
+    public void saveRoom(RoomDto roomDto) {
+        Item item = itemRepository.getReferenceById(roomDto.itemId());
+        roomRepository.save(roomDto.toEntity(item));
+    }
 }

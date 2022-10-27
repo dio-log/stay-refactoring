@@ -1,5 +1,7 @@
 package com.dio.project.stay.domain;
 
+import com.dio.project.stay.domain.type.UserStatus;
+import com.dio.project.stay.domain.type.UserType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,37 +20,37 @@ import java.time.LocalDateTime;
 @ToString
 @EntityListeners(AuditingEntityListener.class)
 @Entity
-public class UserAccount {
+public class UserAccount extends AuditingFields{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(length = 50)
+    private String userId;
 
-    //카카오, 구글 api사용시 id가 null일 수 있음
     //이메일로 가입된 회원인지 조회
-    @Setter @Column(length = 55) private String userId;
     @Setter @Column(length = 30) private String userPwd;
     @Setter @Column(nullable = false,length = 50) private String email;
     @Setter @Column(nullable = false,length = 10) private String nickname;
     @Setter @Column(nullable = false,length = 20) private String phone;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @CreatedDate @Column(nullable = false) private LocalDateTime createdAt;
-    @CreatedBy @Column(nullable = false,length = 100) private String createdBy;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @LastModifiedDate @Column(nullable = false) private LocalDateTime modifiedAt;
-    @LastModifiedBy @Column(length = 100) private String modifiedBy;
+    @Setter @Column(nullable = false,length = 10) private UserType userType;
+
+    @Setter @Column(nullable = false,length = 10) private UserStatus userStatus;
+
+
 
     protected UserAccount() {}
 
-    public static UserAccount of(String userId, String userPwd, String email, String nickname, String phone) {
-        return new UserAccount(userId,userPwd,email,nickname,phone);
+    public static UserAccount of(String userId, String userPwd, String email, String nickname, String phone, UserType userType, UserStatus userStatus) {
+        return new UserAccount(userId,userPwd,email,nickname,phone,userType,userStatus);
     }
 
-    private UserAccount(String userId, String userPwd, String email, String nickname, String phone) {
+    public UserAccount(String userId, String userPwd, String email, String nickname, String phone, UserType userType, UserStatus userStatus) {
         this.userId = userId;
         this.userPwd = userPwd;
         this.email = email;
         this.nickname = nickname;
         this.phone = phone;
+        this.userType = userType;
+        this.userStatus = userStatus;
     }
 }
+

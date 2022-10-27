@@ -13,13 +13,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Getter
 @ToString(callSuper = true) //부모프로퍼티까지 찍음
 @EntityListeners(AuditingEntityListener.class)
 @Entity
-public class Item {
+public class Item extends AuditingFields {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,11 +31,10 @@ public class Item {
     private UserAccount userAccount; //userAccount가 연관관계의 주인이됨
 
 
-    @Setter
-    @OneToMany(mappedBy = "item") //Room엔티티에있는 item이 주인이라고 설정
+    @OrderBy("createdAt DESC")
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL) //Room엔티티에있는 item이 주인이라고 설정
     @ToString.Exclude
-    private List<Room> rooms = new ArrayList<>();
-
+    private List<Room> rooms = new LinkedList<>();
     @Setter @Column(nullable = false, length = 30) private String itemName;
     @Setter @Column(nullable = false, length = 30) private String itemGroup;
     @Setter @Column(nullable = false, length = 55) private String itemAddr;
@@ -43,25 +43,13 @@ public class Item {
     @Setter @Column(length = 1000) private String itemEvent;
     @Setter @Column(nullable = false, length = 2000) private String imgPath;
     @Setter
-    @Column(columnDefinition = "varchar(4) default '0'", length = 5) private String grade;
+    @Column(length = 5) private float grade;
     @Setter @Column(length = 2000) private String infoAround;
     @Setter @Column(length = 2000) private String infoBasic;
     @Setter @Column(length = 2000) private String infoNotice;
     @Setter @Column(length = 2000) private String infoParking;
     @Setter @Column(length = 2000) private String infoPeople;
     @Setter @Column(nullable = false, length = 2000) private String infoRefund;
-
-
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @CreatedDate
-    @Column(nullable = false) private LocalDateTime createdAt;
-    @CreatedBy
-    @Column(nullable = false,length = 100) private String createdBy;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @LastModifiedDate
-    @Column(nullable = false) private LocalDateTime modifiedAt;
-    @LastModifiedBy
-    @Column(length = 100) private String modifiedBy;
 
     protected Item(){}
 
@@ -75,17 +63,14 @@ public class Item {
                 String itemAddrExtra,
                 String itemEvent,
                 String imgPath,
-                String grade,
+                float grade,
                 String infoAround,
                 String infoBasic,
                 String infoNotice,
                 String infoParking,
                 String infoPeople,
-                String infoRefund,
-                LocalDateTime createdAt,
-                String createdBy,
-                LocalDateTime modifiedAt,
-                String modifiedBy) {
+                String infoRefund
+    ) {
         return new Item(userAccount,
                 itemName,
                 itemGroup,
@@ -100,11 +85,8 @@ public class Item {
                 infoNotice,
                 infoParking,
                 infoPeople,
-                infoRefund,
-                createdAt,
-                createdBy,
-                modifiedAt,
-                modifiedBy);
+                infoRefund
+        );
     }
 
     private Item(
@@ -116,17 +98,14 @@ public class Item {
                 String itemAddrExtra,
                 String itemEvent,
                 String imgPath,
-                String grade,
+                float grade,
                 String infoAround,
                 String infoBasic,
                 String infoNotice,
                 String infoParking,
                 String infoPeople,
-                String infoRefund,
-                LocalDateTime createdAt,
-                String createdBy,
-                LocalDateTime modifiedAt,
-                String modifiedBy) {
+                String infoRefund
+    ) {
         this.userAccount = userAccount;
         this.itemName = itemName;
         this.itemGroup = itemGroup;
@@ -142,9 +121,5 @@ public class Item {
         this.infoParking = infoParking;
         this.infoPeople = infoPeople;
         this.infoRefund = infoRefund;
-        this.createdAt = createdAt;
-        this.createdBy = createdBy;
-        this.modifiedAt = modifiedAt;
-        this.modifiedBy = modifiedBy;
     }
 }
