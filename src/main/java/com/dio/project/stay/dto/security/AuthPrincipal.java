@@ -47,7 +47,7 @@ public class AuthPrincipal implements UserDetails {
 
     public static AuthPrincipal from(UserAccountDto userAccountDto){
         return AuthPrincipal.of(
-                userAccountDto.getUserId(),
+                userAccountDto.getUserId(),D
                 userAccountDto.getUserPwd(),
                 userAccountDto.getEmail(),
                 userAccountDto.getNickname(),
