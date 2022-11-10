@@ -22,24 +22,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-@RequestMapping("/Item")
-@Controller
+@RequestMapping("/api")
+@RestController
 public class ItemController {
 
     private final ItemService itemService;
 
     //아이템 생성
-    @PostMapping("/new")
+    @RequestMapping(value="/item",method=RequestMethod.POST)
     public String newItem(
             @AuthenticationPrincipal AuthPrincipal authPrincipal,
-            ItemRequest request
+            @RequestBody ItemRequest request
             ){
         itemService.saveItem(request.toDto(authPrincipal.toUserAccountDto()));
         return "";
     }
 
     //단일 아이템 with roomlist
-    @GetMapping("/get/{id}")
+    @RequestMapping(value="/item/{id}", method=RequestMethod.GET)
     public String getItem(@PathVariable Long id, ModelMap map){
         ItemResponse item = ItemResponse.from(itemService.getItem(id));
         map.addAttribute("item", item);
@@ -47,7 +47,7 @@ public class ItemController {
     }
 
     //아이템리스트
-    @GetMapping("/get/list")
+    @RequestMapping(value="/items", method=RequestMethod.GET)
     public String getItems(
             @RequestParam String searchWord,
             @RequestParam String date,
@@ -64,11 +64,11 @@ public class ItemController {
         return "";
     }
 
-    @PostMapping("/update")
+    @RequestMapping(value="/item", method=RequestMethod.PUT)
     public String updateItem(
-                             ItemRequest itemRequest,
-                             @AuthenticationPrincipal AuthPrincipal authPrincipal){
-
+            @AuthenticationPrincipal AuthPrincipal authPrincipal,
+            @RequestBody ItemRequest itemRequest
+                             ){
         if(userAuthCheck(itemRequest.getUserId(),authPrincipal.getUsername())){
             itemService.updateItem(itemRequest.toDto(authPrincipal.toUserAccountDto()));
         }else{
@@ -78,10 +78,11 @@ public class ItemController {
         return "";
     }
 
-    @GetMapping("/delete?userId={userId}&itemId={itemId}")
+    //@GetMapping("/delete?userId={userId}&itemId={itemId}")
+    @RequestMapping(value="/item?user={userId}&item={itemId}", method=RequestMethod.DELETE)
     public String deleteItem(@AuthenticationPrincipal AuthPrincipal authPrincipal,
-                             String userId,
-                             Long itemId
+                             @PathVariable String userId,
+                             @PathVariable Long itemId
                              ){
         if(userAuthCheck(userId, authPrincipal.getUsername())){
             itemService.deleteItem(itemId);

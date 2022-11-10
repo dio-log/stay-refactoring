@@ -9,8 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public class AuthPrincipal implements UserDetails {
     private String username;
@@ -18,7 +16,6 @@ public class AuthPrincipal implements UserDetails {
     private String email;
     private String nickname;
     private String phone;
-
     private UserType userType;
 
     //UserStatus클래스를 인증수단으로 활용
@@ -32,6 +29,7 @@ public class AuthPrincipal implements UserDetails {
         this.phone = phone;
         this.userType = userType;
         this.authorities = Collections.singleton(new SimpleGrantedAuthority(userStatus.getDescription()));
+        //UserStatus로 암호화코드만듬
     }
 
     public static AuthPrincipal of(String username, String password, String email, String nickname, String phone, UserType userType, UserStatus userStatus) {
@@ -47,7 +45,7 @@ public class AuthPrincipal implements UserDetails {
 
     public static AuthPrincipal from(UserAccountDto userAccountDto){
         return AuthPrincipal.of(
-                userAccountDto.getUserId(),D
+                userAccountDto.getUserId(),
                 userAccountDto.getUserPwd(),
                 userAccountDto.getEmail(),
                 userAccountDto.getNickname(),
